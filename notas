@@ -314,4 +314,649 @@ typedef struct Nodo {
 ```
 
 
+### **7.2 Lista Simplemente Enlazada**
 
+**Estructura Básica:**
+```c
+typedef struct Nodo {
+    int dato;
+    struct Nodo *siguiente;
+} Nodo;
+```
+
+**Operaciones Esenciales:**
+
+**Crear Nodo:**
+```c
+Nodo* crearNodo(int dato) {
+    Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
+    nuevo->dato = dato;
+    nuevo->siguiente = NULL;
+    return nuevo;
+}
+```
+
+**Insertar al Inicio:**
+```c
+void insertarInicio(Nodo** cabeza, int dato) {
+    Nodo* nuevo = crearNodo(dato);
+    nuevo->siguiente = *cabeza;
+    *cabeza = nuevo;
+}
+```
+
+**Insertar al Final:**
+```c
+void insertarFinal(Nodo** cabeza, int dato) {
+    Nodo* nuevo = crearNodo(dato);
+    
+    if (*cabeza == NULL) {
+        *cabeza = nuevo;
+        return;
+    }
+    
+    Nodo* actual = *cabeza;
+    while (actual->siguiente != NULL) {
+        actual = actual->siguiente;
+    }
+    actual->siguiente = nuevo;
+}
+```
+
+**Eliminar Nodo:**
+```c
+void eliminarNodo(Nodo** cabeza, int dato) {
+    if (*cabeza == NULL) return;
+    
+    // Caso especial: eliminar cabeza
+    if ((*cabeza)->dato == dato) {
+        Nodo* temp = *cabeza;
+        *cabeza = (*cabeza)->siguiente;
+        free(temp);
+        return;
+    }
+    
+    // Buscar nodo a eliminar
+    Nodo* actual = *cabeza;
+    while (actual->siguiente != NULL && actual->siguiente->dato != dato) {
+        actual = actual->siguiente;
+    }
+    
+    if (actual->siguiente != NULL) {
+        Nodo* temp = actual->siguiente;
+        actual->siguiente = actual->siguiente->siguiente;
+        free(temp);
+    }
+}
+```
+
+**Recorrer Lista:**
+```c
+void recorrerLista(Nodo* cabeza) {
+    Nodo* actual = cabeza;
+    while (actual != NULL) {
+        printf("%d -> ", actual->dato);
+        actual = actual->siguiente;
+    }
+    printf("NULL\n");
+}
+```
+
+### **7.3 Lista Doblemente Enlazada**
+
+**Estructura:**
+```c
+typedef struct NodoDoble {
+    int dato;
+    struct NodoDoble *anterior;
+    struct NodoDoble *siguiente;
+} NodoDoble;
+```
+
+
+
+**Recorrido:**
+```c
+void recorrerCircular(Nodo* cabeza) {
+    if (cabeza == NULL) return;
+    
+    Nodo* actual = cabeza;
+    do {
+        printf("%d -> ", actual->dato);
+        actual = actual->siguiente;
+    } while (actual != cabeza);
+    printf("(inicio)\n");
+}
+```
+
+
+
+### **8.1 PILAS (STACK) - LIFO**
+
+**Principio:** Last In, First Out (Último en entrar, primero en salir)
+
+**Operaciones:**
+- `push()`: Insertar elemento
+- `pop()`: Eliminar y retornar elemento
+- `peek()`: Ver tope sin eliminar
+- `isEmpty()`: Verificar si está vacía
+
+**Implementación con Listas Enlazadas:**
+
+```c
+typedef struct Pila {
+    Nodo* tope;
+} Pila;
+
+// Inicializar pila
+Pila* crearPila() {
+    Pila* pila = (Pila*)malloc(sizeof(Pila));
+    pila->tope = NULL;
+    return pila;
+}
+
+// Push - Insertar en el tope
+void push(Pila* pila, int dato) {
+    Nodo* nuevo = crearNodo(dato);
+    nuevo->siguiente = pila->tope;
+    pila->tope = nuevo;
+}
+
+// Pop - Eliminar del tope
+int pop(Pila* pila) {
+    if (pila->tope == NULL) {
+        printf("Pila vacía\n");
+        return -1;
+    }
+    
+    Nodo* temp = pila->tope;
+    int dato = temp->dato;
+    pila->tope = pila->tope->siguiente;
+    free(temp);
+    return dato;
+}
+
+// Peek - Ver tope sin eliminar
+int peek(Pila* pila) {
+    if (pila->tope == NULL) {
+        printf("Pila vacía\n");
+        return -1;
+    }
+    return pila->tope->dato;
+}
+
+// Verificar si está vacía
+int isEmpty(Pila* pila) {
+    return pila->tope == NULL;
+}
+```
+
+### **8.2 COLAS (QUEUE) - FIFO**
+
+**Principio:** First In, First Out (Primero en entrar, primero en salir)
+
+**Operaciones:**
+- `enqueue()`: Insertar al final
+- `dequeue()`: Eliminar del frente
+- `front()`: Ver frente sin eliminar
+- `isEmpty()`: Verificar si está vacía
+
+**Implementación con Listas Enlazadas:**
+
+```c
+typedef struct Cola {
+    Nodo* frente;
+    Nodo* final;
+} Cola;
+
+// Inicializar cola
+Cola* crearCola() {
+    Cola* cola = (Cola*)malloc(sizeof(Cola));
+    cola->frente = cola->final = NULL;
+    return cola;
+}
+
+// Enqueue - Insertar al final
+void encolar(Cola* cola, int dato) {
+    Nodo* nuevo = crearNodo(dato);
+    
+    if (cola->final == NULL) {
+        // Cola vacía
+        cola->frente = cola->final = nuevo;
+    } else {
+        cola->final->siguiente = nuevo;
+        cola->final = nuevo;
+    }
+}
+
+// Dequeue - Eliminar del frente
+int desencolar(Cola* cola) {
+    if (cola->frente == NULL) {
+        printf("Cola vacía\n");
+        return -1;
+    }
+    
+    Nodo* temp = cola->frente;
+    int dato = temp->dato;
+    cola->frente = cola->frente->siguiente;
+    
+    // Si la cola queda vacía
+    if (cola->frente == NULL) {
+        cola->final = NULL;
+    }
+    
+    free(temp);
+    return dato;
+}
+
+// Front - Ver frente sin eliminar
+int front(Cola* cola) {
+    if (cola->frente == NULL) {
+        printf("Cola vacía\n");
+        return -1;
+    }
+    return cola->frente->dato;
+}
+
+// Verificar si está vacía
+int isEmptyCola(Cola* cola) {
+    return cola->frente == NULL;
+}
+```
+
+
+
+
+**Manejo de Memoria:**
+```c
+
+Nodo* actual = cabeza;
+while (actual != NULL) {
+    Nodo* temp = actual;
+    actual = actual->siguiente;
+    free(temp);
+}
+```
+
+**Verificación de NULL:**
+
+if (pila->tope != NULL) {
+    int valor = pila->tope->dato;
+    // operar...
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+# 🎯 
+
+###  Cambiar a PILA (LIFO) para abordaje**
+
+**Modificación:** Que los últimos en comprar sean los primeros en abordar
+
+```c
+// Cambiar la función vender_tiquetes para insertar al INICIO (Pila)
+void vender_tiquetes() {
+    // [código anterior igual hasta...]
+    
+    Pasajero* nuevo_pasajero = (Pasajero*)malloc(sizeof(Pasajero));
+    // [inicialización igual...]
+    
+    // CAMBIO: Insertar al INICIO en lugar del FINAL
+    nuevo_pasajero->siguiente = lista_venta;
+    lista_venta = nuevo_pasajero;
+    
+    tiquetes_vendidos++;
+    printf("Tiquete vendido exitosamente. Total vendidos: %d\n", tiquetes_vendidos);
+}
+```
+🎯
+### : Implementar COLA CIRCULAR para capacidad fija**
+
+**Modificación:** Usar cola circular con arreglo para capacidad limitada
+
+```c
+#define MAX_PASAJEROS 200
+
+typedef struct ColaCircular {
+    Pasajero* pasajeros[MAX_PASAJEROS];
+    int frente;
+    int final;
+    int tamaño;
+} ColaCircular;
+
+ColaCircular cola_venta = { .frente = 0, .final = 0, .tamaño = 0 };
+
+void encolar_pasajero(Pasajero* pasajero) {
+    if (cola_venta.tamaño >= MAX_PASAJEROS) {
+        printf("Cola llena, no se puede encolar\n");
+        return;
+    }
+    
+    cola_venta.pasajeros[cola_venta.final] = pasajero;
+    cola_venta.final = (cola_venta.final + 1) % MAX_PASAJEROS;
+    cola_venta.tamaño++;
+}
+
+Pasajero* desencolar_pasajero() {
+    if (cola_venta.tamaño == 0) {
+        return NULL;
+    }
+    
+    Pasajero* pasajero = cola_venta.pasajeros[cola_venta.frente];
+    cola_venta.frente = (cola_venta.frente + 1) % MAX_PASAJEROS;
+    cola_venta.tamaño--;
+    return pasajero;
+}
+```
+
+### 🎯 Sistema de PRIORIDAD usando Cola de Prioridad**
+
+**Modificación:** Priorizar por género (ej: mujeres primero)
+
+```c
+typedef struct ColaPrioridad {
+    Pasajero* femenino;    // Prioridad alta
+    Pasajero* masculino;   // Prioridad media  
+    Pasajero* no_binario;  // Prioridad baja
+} ColaPrioridad;
+
+void encolar_por_prioridad(ColaPrioridad* cola, Pasajero* pasajero) {
+    Pasajero** lista_destino;
+    
+    switch(pasajero->genero) {
+        case FEMENINO: lista_destino = &cola->femenino; break;
+        case MASCULINO: lista_destino = &cola->masculino; break;
+        case NO_BINARIO: lista_destino = &cola->no_binario; break;
+    }
+    
+    // Insertar al final de la lista correspondiente
+    pasajero->siguiente = NULL;
+    if (*lista_destino == NULL) {
+        *lista_destino = pasajero;
+    } else {
+        Pasajero* temp = *lista_destino;
+        while (temp->siguiente != NULL) {
+            temp = temp->siguiente;
+        }
+        temp->siguiente = pasajero;
+    }
+}
+
+Pasajero* desencolar_prioridad(ColaPrioridad* cola) {
+    // Primero buscar en femenino
+    if (cola->femenino != NULL) {
+        Pasajero* temp = cola->femenino;
+        cola->femenino = cola->femenino->siguiente;
+        return temp;
+    }
+    // Luego en masculino
+    if (cola->masculino != NULL) {
+        Pasajero* temp = cola->masculino;
+        cola->masculino = cola->masculino->siguiente;
+        return temp;
+    }
+    // Finalmente en no binario
+    if (cola->no_binario != NULL) {
+        Pasajero* temp = cola->no_binario;
+        cola->no_binario = cola->no_binario->siguiente;
+        return temp;
+    }
+    return NULL;
+}
+```
+
+### 🎯: Usar PILAS para sistema de "DESHACER" venta**
+
+**Modificación:** Implementar deshacer última venta
+
+```c
+Pasajero* pila_deshacer = NULL;
+
+void vender_tiquetes() {
+    // [código normal de venta...]
+    
+    // Guardar en pila de deshacer
+    Pasajero* copia_deshacer = (Pasajero*)malloc(sizeof(Pasajero));
+    copia_deshacer->genero = nuevo_pasajero->genero;
+    strcpy(copia_deshacer->primerApellido, nuevo_pasajero->primerApellido);
+    copia_deshacer->siguiente = pila_deshacer;
+    pila_deshacer = copia_deshacer;
+}
+
+void deshacer_venta() {
+    if (pila_deshacer == NULL) {
+        printf("No hay ventas para deshacer\n");
+        return;
+    }
+    
+    // Eliminar el último pasajero vendido
+    Pasajero* ultimo = pila_deshacer;
+    pila_deshacer = pila_deshacer->siguiente;
+    
+    // Buscar y eliminar de lista_venta
+    if (lista_venta != NULL) {
+        if (strcmp(lista_venta->primerApellido, ultimo->primerApellido) == 0 && 
+            lista_venta->genero == ultimo->genero) {
+            // Es el primero
+            Pasajero* temp = lista_venta;
+            lista_venta = lista_venta->siguiente;
+            free(temp);
+        } else {
+            // Buscar en la lista
+            Pasajero* actual = lista_venta;
+            while (actual->siguiente != NULL) {
+                if (strcmp(actual->siguiente->primerApellido, ultimo->primerApellido) == 0 &&
+                    actual->siguiente->genero == ultimo->genero) {
+                    Pasajero* temp = actual->siguiente;
+                    actual->siguiente = actual->siguiente->siguiente;
+                    free(temp);
+                    break;
+                }
+                actual = actual->siguiente;
+            }
+        }
+    }
+    
+    free(ultimo);
+    tiquetes_vendidos--;
+    printf("Venta deshecha. Total vendidos: %d\n", tiquetes_vendidos);
+}
+```
+
+## 🎯 **CÓDIGO COMPLETO MODIFICADO (EJEMPLO PILA LIFO)**
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum {
+    FEMENINO,
+    MASCULINO,
+    NO_BINARIO
+} Genero;
+
+typedef struct pasajero {
+    Genero genero;
+    char primerApellido[50];
+    struct pasajero *siguiente;
+} Pasajero;
+
+// Cambiamos a enfoque PILA (LIFO)
+Pasajero* pila_venta = NULL;        // Último en entrar, primero en salir
+Pasajero* lista_abordados = NULL;
+Pasajero* lista_no_abordados = NULL;
+int capacidad_avion = 0;
+int tiquetes_vendidos = 0;
+int abordaje_iniciado = 0;
+
+void establecer_capacidad() {
+    if(capacidad_avion > 0) {
+        printf("La capacidad ya fue establecida.\n");
+        return;
+    }
+    printf("Ingrese la capacidad del avión: ");
+    scanf("%d", &capacidad_avion);
+    printf("Capacidad del avión establecida a %d pasajeros.\n", capacidad_avion);
+}
+
+// MODIFICADO: Ahora es una PILA (insertar al inicio)
+void vender_tiquetes() {
+    if (capacidad_avion == 0) {
+        printf("Primero debe establecer la capacidad del avion.\n");
+        return;
+    }
+
+    if (abordaje_iniciado) {
+        printf("No se pueden vender pasajes después de que ha comenzado el abordaje.\n");
+        return;
+    }
+
+    int max_vendidos = capacidad_avion + (capacidad_avion / 10);
+    if (tiquetes_vendidos >= max_vendidos) {
+        printf("No se pueden vender más tiquetes. Se ha alcanzado el límite de sobreventa.\n");
+        return;
+    }
+    
+    Pasajero* nuevo_pasajero = (Pasajero*)malloc(sizeof(Pasajero));
+    if (!nuevo_pasajero) {
+        printf("Error al asignar memoria para el nuevo pasajero.\n");
+        return;
+    }
+
+    printf("\n--- Venta de tiquetes ---\n");
+    printf("Genero (0-Femenino, 1-Masculino, 2-No binario): ");
+    int genero;
+    scanf("%d", &genero);
+
+    if (genero < 0 || genero > 2 ){
+        printf("Genero invalido. Se asignara Femenino por defecto.\n");
+        genero = 0;
+    }
+    nuevo_pasajero->genero = (Genero)genero;
+
+    printf("Primer apellido: ");
+    scanf("%s", nuevo_pasajero->primerApellido);
+
+    // CAMBIO PRINCIPAL: Insertar al INICIO (comportamiento PILA)
+    nuevo_pasajero->siguiente = pila_venta;
+    pila_venta = nuevo_pasajero;
+    
+    tiquetes_vendidos++;
+    printf("Tiquete vendido exitosamente. Total vendidos: %d\n", tiquetes_vendidos);
+    printf("NOTA: Sistema en modo PILA - Último en comprar será primero en abordar\n");
+}
+
+// MODIFICADO: Abordaje desde la PILA (LIFO)
+void iniciar_abordaje() {
+    if (capacidad_avion == 0) {
+        printf("Primero debe establecer la capacidad del avion.\n");
+        return;
+    }
+
+    if (abordaje_iniciado) {
+        printf("El abordaje ya ha comenzado.\n");
+        return;
+    }
+
+    abordaje_iniciado = 1;
+    printf("Abordaje iniciado (modo PILA - LIFO)\n");
+
+    Pasajero* actual = pila_venta;
+    int cont_abordados = 0;
+
+    // Los primeros en abordar son los últimos que compraron (cima de la pila)
+    while (actual && cont_abordados < capacidad_avion) {
+        Pasajero* nuevo_abordado = (Pasajero*)malloc(sizeof(Pasajero));
+        if (!nuevo_abordado) {
+            printf("Error al asignar memoria para el pasajero abordado.\n");
+            return;
+        }
+        nuevo_abordado->genero = actual->genero;
+        strcpy(nuevo_abordado->primerApellido, actual->primerApellido);
+        nuevo_abordado->siguiente = NULL;
+
+        // Insertar al final de lista_abordados
+        if (!lista_abordados) {
+            lista_abordados = nuevo_abordado;
+        } else {
+            Pasajero* temp = lista_abordados;
+            while (temp->siguiente) {
+                temp = temp->siguiente;
+            }
+            temp->siguiente = nuevo_abordado;
+        }
+
+        actual = actual->siguiente;
+        cont_abordados++;
+    }
+
+    // El resto van a no abordados (manteniendo orden PILA)
+    while (actual) {
+        Pasajero* nuevo_no_abordado = (Pasajero*)malloc(sizeof(Pasajero));
+        if (!nuevo_no_abordado) {
+            printf("Error al asignar memoria para el pasajero no abordado.\n");
+            return;
+        }
+        nuevo_no_abordado->genero = actual->genero;
+        strcpy(nuevo_no_abordado->primerApellido, actual->primerApellido);
+        nuevo_no_abordado->siguiente = NULL;
+
+        // Insertar al final de lista_no_abordados
+        if (!lista_no_abordados) {
+            lista_no_abordados = nuevo_no_abordado;
+        } else {
+            Pasajero* temp = lista_no_abordados;
+            while (temp->siguiente) {
+                temp = temp->siguiente;
+            }
+            temp->siguiente = nuevo_no_abordado;
+        }
+
+        actual = actual->siguiente;
+    }
+    printf("Abordaje completado. Total abordados: %d, Total no abordados: %d\n", 
+           cont_abordados, tiquetes_vendidos - cont_abordados);
+}
+
+// Función para mostrar el tope de la pila (último vendido)
+void mostrar_tope_pila() {
+    if (pila_venta == NULL) {
+        printf("Pila de ventas vacía\n");
+        return;
+    }
+    
+    const char* genero_str;
+    switch (pila_venta->genero) {
+        case FEMENINO: genero_str = "Femenino"; break;
+        case MASCULINO: genero_str = "Masculino"; break;
+        case NO_BINARIO: genero_str = "No binario"; break;
+        default: genero_str = "Desconocido";
+    }
+    printf("TOPE de la pila (próximo en abordar): %s, Género: %s\n", 
+           pila_venta->primerApellido, genero_str);
+}
+
+void mostrar_pasajeros(const char* lista_nombre, Pasajero* lista) {
+    printf("\n--- %s ---\n", lista_nombre);
+
+    if (lista == NULL) {
+        printf("No hay pasajeros en esta lista.\n");
+        return;
+    }
+    Pasajero* actual = lista;
+    int contador = 1;
+
+    while (actual){
+        const char* genero_str;
+        switch (actual->genero) {
