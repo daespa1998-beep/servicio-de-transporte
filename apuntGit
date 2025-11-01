@@ -1,0 +1,10 @@
+git config -- global user.name "daespa1998-beep"                                       conf
+git config --global user.email "daespa1998@gmail.com"                                  conf
+git clone https://github.com/daespa1998-beep/servicio-de-transporte.git                clonar         1              cd repositorio   2
+git init                                                                             + crear repo
+git add .                                                                              agregar        3
+git commit -m "jasojf"                                                                 guardar        4
+git remote add origin https://github.com/daespa1998-beep/servicio-de-transporte.git    conectar 
+git push -u origin main                                                                subir          5
+git pull origin main                                                                   actualizar
+git status                                                                             estado
